@@ -99,10 +99,10 @@ function reportValListExpiration () {
       const d = new Date()
       if (d.getDay() === 1) {
         // Monday
-        messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
+        messageSlack('It is Monday! Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
       }
     } else {
-      messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
+      messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '* - less than two weeks!')
     }
   })
 }
