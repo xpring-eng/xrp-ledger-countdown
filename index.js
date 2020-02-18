@@ -92,7 +92,18 @@ function reportValListExpiration () {
     const now = Date.now()
     const valList = JSON.parse(new Buffer(data.blob, 'base64').toString('ascii'))
     const time = countdown(now, parseRippleTime(valList.expiration)).toString()
-    messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
+    // if the expiration is more than two weeks into the future, it only reports once a week, on a Monday? If it’s less than 2 weeks, it can do daily.
+    const twoWeeksInMilliseconds = 2 * 7 * 24 * 60 * 60 * 1000
+    if (parseRippleTime(valList.expiration) - Date.now() > twoWeeksInMilliseconds) {
+      // report only if it is Monday
+      const d = new Date()
+      if (d.getDay() === 1) {
+        // Monday
+        messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
+      }
+    } else {
+      messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
+    }
   })
 }
 
