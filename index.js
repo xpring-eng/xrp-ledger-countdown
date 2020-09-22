@@ -2,6 +2,15 @@ const countdown = require('countdown')
 const CronJob = require('cron').CronJob;
 const request = require('request-promise')
 const Slack = require('slack-node');
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use('/health', require('./healthcheck'));
+
+app.listen(port, () => {
+  console.log(`XRP Ledger Countdown listening at http://localhost:${port}`);
+})
 
 var slack = new Slack();
 slack.setWebhook(process.env['WEBHOOK_URI']);
