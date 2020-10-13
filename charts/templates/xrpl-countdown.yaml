@@ -1,0 +1,73 @@
+{{ $defaultAppName := printf "%s" .Release.Name }}
+{{ $fullAppName := default $defaultAppName .Values.fullnameOverride }}
+#internalsApiKey: {{ .Values.internalsApiKey | toString | b64enc }}
+#internals: {{ .Values.internals | toString | b64enc }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $fullAppName }}-secret
+type: Opaque
+data:
+  serversApiKey: {{ .Values.serversApiKey | toString | b64enc }}
+  faucetsApiKey: {{ .Values.faucetsApiKey | toString | b64enc }}
+  faucets: {{ .Values.faucets | toString | b64enc }}
+  servers: {{ .Values.servers | toString | b64enc }}
+  PORT: {{ .Values.PORT | toString | b64enc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullAppName }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ $fullAppName }}
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: {{ .Values.PORT }}
+    name: public
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullAppName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $fullAppName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $fullAppName }}
+    spec:
+      containers:
+      - image: {{ .Values.releaseImage }}
+        name: {{ $fullAppName }}
+        envFrom:
+        - secretRef:
+            name: {{ $fullAppName }}-secret
+        livenessProbe:
+          httpGet:
+              path: /health
+              port: {{ .Values.healthPort }}
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+              path: /health
+              port: {{ .Values.healthPort }}
+          initialDelaySeconds: 120
+          periodSeconds: 10
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.healthPort }}
+          name: public
+        resources:
+          limits:
+            cpu: 100m
+            memory: 250Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi

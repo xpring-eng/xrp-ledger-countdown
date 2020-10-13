@@ -1,0 +1,48 @@
+# CI/CD for rippled status page updater
+stages:
+  - publish
+  - deploy
+
+variables:
+GCR_PROJECT_ID: xpring-dev-sandbox
+GCLOUD_PROJECT_ID: xpring-dev-sandbox
+CLUSTER_NAME: poc1-cluster
+CLUSTER_REGION: us-central1
+RELEASE_NAME: statuspage
+RELEASE_ENV: dev
+
+include:
+- project: 'xpring/xpring-ci-templates'
+  file: '/templates/build_for_gcr.yml'
+
+# Build a docker image and push it to the GCR associated with $GCLOUD_PROJECT_ID
+build/publish:
+stage: publish
+extends: .publish
+
+# This is a template that is used below. It does not do anything by itself
+#--set internalsApiKey="${internalsApiKey}"
+#--set internals="${internals}"
+.deploy_statuspage:
+extends: .deploy
+needs: ["build/publish"]
+when: manual
+script:
+  - mkdir dependency_charts
+  - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.in.xpring.tech/xpring-eng/xpring_nginx.git dependency_charts/xpring_nginx
+  - export IMAGE_UID="$(cat image_uid.meta.txt)"
+  - kubectl create namespace ${RELEASE_NAME}-${RELEASE_ENV} || true
+  - helm dep update ./charts
+  - helm upgrade --install --namespace ${RELEASE_NAME}-${RELEASE_ENV}
+      --set PORT="${PORT}"
+      --set releaseImage="gcr.io/$GCR_PROJECT_ID/$CI_PROJECT_NAME:$IMAGE_UID"
+      --set sslproxy.proxiedService="http://${RELEASE_NAME}-${RELEASE_ENV}"
+      --set sslproxy.domainName=${DOMAIN_NAME}
+      ${RELEASE_NAME}-${RELEASE_ENV} ./charts
+
+deploy to dev:
+stage: deploy
+extends: .deploy_statuspage
+variables:
+  RELEASE_ENV: dev
+  DOMAIN_NAME: dev.xrpl-countdown.xpring.dev
