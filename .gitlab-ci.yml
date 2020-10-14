@@ -4,12 +4,12 @@ stages:
   - deploy
 
 variables:
-GCR_PROJECT_ID: xpring-dev-sandbox
-GCLOUD_PROJECT_ID: xpring-dev-sandbox
-CLUSTER_NAME: poc1-cluster
-CLUSTER_REGION: us-central1
-RELEASE_NAME: xrpl-countdown
-RELEASE_ENV: dev
+  GCR_PROJECT_ID: xpring-dev-sandbox
+  GCLOUD_PROJECT_ID: xpring-dev-sandbox
+  CLUSTER_NAME: poc1-cluster
+  CLUSTER_REGION: us-central1
+  RELEASE_NAME: xrpl-countdown
+  RELEASE_ENV: dev
 
 include:
 - project: 'xpring/xpring-ci-templates'
