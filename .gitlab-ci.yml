@@ -8,7 +8,7 @@ GCR_PROJECT_ID: xpring-dev-sandbox
 GCLOUD_PROJECT_ID: xpring-dev-sandbox
 CLUSTER_NAME: poc1-cluster
 CLUSTER_REGION: us-central1
-RELEASE_NAME: statuspage
+RELEASE_NAME: xrpl-countdown
 RELEASE_ENV: dev
 
 include:
@@ -21,9 +21,7 @@ stage: publish
 extends: .publish
 
 # This is a template that is used below. It does not do anything by itself
-#--set internalsApiKey="${internalsApiKey}"
-#--set internals="${internals}"
-.deploy_statuspage:
+.deploy_xrpl_countdown:
 extends: .deploy
 needs: ["build/publish"]
 when: manual
@@ -42,7 +40,7 @@ script:
 
 deploy to dev:
 stage: deploy
-extends: .deploy_statuspage
+extends: .deploy_xrpl_countdown
 variables:
   RELEASE_ENV: dev
   DOMAIN_NAME: dev.xrpl-countdown.xpring.dev
