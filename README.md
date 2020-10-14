@@ -1,6 +1,6 @@
 # XRP Ledger Countdown
 
-Reports upcoming XRP Ledger events on Slack
+Reports upcoming XRP Ledger events on Slack.
 
 ## Usage
 
