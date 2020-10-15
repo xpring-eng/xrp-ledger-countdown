@@ -1,5 +1,5 @@
 releaseImage: gcr.io/xpring-dev-sandbox/xrpl-countdown:latest
-healthPort: 8889
+healthPort: 8001
 sslproxy:
   install: true
   releaseImage: gcr.io/xpring-dev-sandbox/xpring_nginx:0.0.3
