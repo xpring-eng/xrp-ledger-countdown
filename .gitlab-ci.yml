@@ -44,7 +44,7 @@ deploy to dev test:
   environment:
     name: dev-test
   variables:
-    RELEASE_ENV: dev
+    RELEASE_ENV: dev-test
     DOMAIN_NAME: dev.xrpl-countdown.xpring.dev
 
 deploy to dev live:
@@ -53,5 +53,5 @@ deploy to dev live:
   environment:
     name: dev-live
   variables:
-    RELEASE_ENV: dev
+    RELEASE_ENV: dev-live
     DOMAIN_NAME: dev.xrpl-countdown.xpring.dev
