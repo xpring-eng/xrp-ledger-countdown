@@ -38,9 +38,20 @@ build/publish:
         --set sslproxy.domainName=${DOMAIN_NAME}
         ${RELEASE_NAME}-${RELEASE_ENV} ./charts
 
-deploy to dev:
+deploy to dev test:
   stage: deploy
   extends: .deploy_xrpl_countdown
+  environment:
+    name: dev-test
+  variables:
+    RELEASE_ENV: dev
+    DOMAIN_NAME: dev.xrpl-countdown.xpring.dev
+
+deploy to dev live:
+  stage: deploy
+  extends: .deploy_xrpl_countdown
+  environment:
+    name: dev-live
   variables:
     RELEASE_ENV: dev
     DOMAIN_NAME: dev.xrpl-countdown.xpring.dev

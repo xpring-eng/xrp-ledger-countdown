@@ -1,6 +1,5 @@
 {{ $defaultAppName := printf "%s" .Release.Name }}
 {{ $fullAppName := default $defaultAppName .Values.fullnameOverride }}
-#internalsApiKey: {{ .Values.internalsApiKey | toString | b64enc }}
 #internals: {{ .Values.internals | toString | b64enc }}
 apiVersion: v1
 kind: Secret
@@ -8,8 +7,7 @@ metadata:
   name: {{ $fullAppName }}-secret
 type: Opaque
 data:
-  serversApiKey: {{ .Values.serversApiKey | toString | b64enc }}
-  faucetsApiKey: {{ .Values.faucetsApiKey | toString | b64enc }}
+  internals: {{ .Values.internals | toString | b64enc }}
   faucets: {{ .Values.faucets | toString | b64enc }}
   servers: {{ .Values.servers | toString | b64enc }}
   PORT: {{ .Values.PORT | toString | b64enc }}
