@@ -49,18 +49,18 @@ spec:
         livenessProbe:
           httpGet:
               path: /health
-              port: {{ .Values.healthPort }}
+              port: {{ .Values.PORT }}
           initialDelaySeconds: 120
           periodSeconds: 10
         readinessProbe:
           httpGet:
               path: /health
-              port: {{ .Values.healthPort }}
+              port: {{ .Values.PORT }}
           initialDelaySeconds: 120
           periodSeconds: 10
         imagePullPolicy: Always
         ports:
-        - containerPort: {{ .Values.healthPort }}
+        - containerPort: {{ .Values.PORT }}
           name: public
         resources:
           limits:
