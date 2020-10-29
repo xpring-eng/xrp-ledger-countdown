@@ -7,10 +7,10 @@ metadata:
   name: {{ $fullAppName }}-secret
 type: Opaque
 data:
-  internals: {{ .Values.internals | toString | b64enc }}
-  faucets: {{ .Values.faucets | toString | b64enc }}
-  servers: {{ .Values.servers | toString | b64enc }}
   PORT: {{ .Values.PORT | toString | b64enc }}
+  WEBHOOK_URI: {{ .Values.WEBHOOK_URI | toString | b64enc }}
+  ALTNET: {{ .Values.ALTNET | toString | b64enc }}
+  LOG: {{ .Values.LOG | toString | b64enc }}
 ---
 apiVersion: v1
 kind: Service
