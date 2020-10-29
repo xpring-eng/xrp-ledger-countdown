@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000
 const log = log4js.getLogger()
 
 // Log Level
-log.level = process.env.log || 'info'
+log.level = process.env['LOG'] || 'info'
 
 const RIPPLED_RPC = process.env['ALTNET'] ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
 const VL_SITE = process.env['ALTNET'] ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'

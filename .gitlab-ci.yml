@@ -33,6 +33,9 @@ build/publish:
     - helm dep update ./charts
     - helm upgrade --install --namespace ${RELEASE_NAME}-${RELEASE_ENV}
         --set PORT="${PORT}"
+        --set WEBHOOK_URI="${WEBHOOK_URI}"
+        --set ALTNET="${ALTNET}"
+        --set LOG="${LOG}"
         --set releaseImage="gcr.io/$GCR_PROJECT_ID/$CI_PROJECT_NAME:$IMAGE_UID"
         --set sslproxy.proxiedService="http://${RELEASE_NAME}-${RELEASE_ENV}"
         --set sslproxy.domainName=${DOMAIN_NAME}
