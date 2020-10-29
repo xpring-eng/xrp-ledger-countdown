@@ -1,19 +1,25 @@
 const countdown = require('countdown')
-const CronJob = require('cron').CronJob;
+const CronJob = require('cron').CronJob
 const request = require('request-promise')
-const Slack = require('slack-node');
-const express = require('express');
-const app = express();
-const port = process.env.PORT || 3000;
+const Slack = require('slack-node')
+const express = require('express')
+const app = express()
+const log4js = require('log4js')
+const port = process.env.PORT || 3000
+const log = log4js.getLogger()
 
-app.use('/health', require('./healthcheck'));
+// Log Level
+log.level = process.env.log || 'info'
+
+app.use('/health', require('./healthcheck'))
 
 app.listen(port, () => {
-  console.log(`XRP Ledger Countdown listening at http://localhost:${port}`);
+  log.info(`XRP Ledger Countdown listening at http://localhost:${port}`);
+  messageSlack('Hey, I am XRP Ledger Countdown and I have just started')
 })
 
 var slack = new Slack();
-slack.setWebhook(process.env['WEBHOOK_URI']);
+slack.setWebhook(process.env['WEBHOOK_URI'])
 
 const RIPPLED_RPC = process.env['ALTNET'] ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
 
@@ -27,12 +33,12 @@ function parseRippleTime(time) {
 }
 
 function messageSlack (message) {
-  console.log(message)
+  log.debug(`Sending message to slack: ${message}`)
   slack.webhook({
     text: message
   }, function(err, response) {
     if (err)
-      console.log(err)
+    log.error(`Error: ${err}`)
   })
 }
 
@@ -101,14 +107,19 @@ function reportValListExpiration () {
     const now = Date.now()
     const valList = JSON.parse(new Buffer(data.blob, 'base64').toString('ascii'))
     const time = countdown(now, parseRippleTime(valList.expiration)).toString()
-    // if the expiration is more than two weeks into the future, it only reports once a week, on a Monday? If it’s less than 2 weeks, it can do daily.
+    // if the expiration is more than two weeks into the future, it only reports once a week, on a Monday? 
+    // If it’s less than 2 weeks, it can do daily.
     const twoWeeksInMilliseconds = 2 * 7 * 24 * 60 * 60 * 1000
     if (parseRippleTime(valList.expiration) - Date.now() > twoWeeksInMilliseconds) {
+      log.debug(`Expiration is more than two weeks into the future`)
       // report only if it is Monday
       const d = new Date()
       if (d.getDay() === 1) {
+        log.debug(`Reporting as it is Monday`)
         // Monday
         messageSlack('It is Monday! Current validator list at `' + VL_SITE + '` will expire in *' + time + '*')
+      } else {
+        log.debug(`Did not report as it is not a Monday`)
       }
     } else {
       messageSlack('Current validator list at `' + VL_SITE + '` will expire in *' + time + '* - less than two weeks!')
