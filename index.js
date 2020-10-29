@@ -11,19 +11,20 @@ const log = log4js.getLogger()
 // Log Level
 log.level = process.env.log || 'info'
 
+const RIPPLED_RPC = process.env['ALTNET'] ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
+const VL_SITE = process.env['ALTNET'] ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
+const SLACK_WEBHOOK_URI = process.env['WEBHOOK_URI']
+
 app.use('/health', require('./healthcheck'))
 
 app.listen(port, () => {
-  log.info(`XRP Ledger Countdown listening at http://localhost:${port}`);
+  log.info(`XRP Ledger Countdown listening at http://localhost:${port}`)
+  log.info(`RIPPLED_RPC: ${RIPPLED_RPC}, VL_SITE: ${VL_SITE}, Webhook URL present? ${(SLACK_WEBHOOK_URI != null)}`)
   messageSlack('Hey, I am XRP Ledger Countdown and I have just started')
 })
 
 var slack = new Slack();
-slack.setWebhook(process.env['WEBHOOK_URI'])
-
-const RIPPLED_RPC = process.env['ALTNET'] ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
-
-const VL_SITE = process.env['ALTNET'] ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
+slack.setWebhook(SLACK_WEBHOOK_URI)
 
 const RIPPLE_EPOCH = 946684800
 const TWO_WEEKS = 1209600
