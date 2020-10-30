@@ -10,15 +10,20 @@ const log = log4js.getLogger()
 
 // Log Level
 log.level = process.env['LOG'] || 'info'
-const RIPPLED_RPC = process.env['ALTNET'] ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
-const VL_SITE = envBool(process.env['ALTNET']) ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
+
+// Constants
+const altNet = envBool(process.env['ALTNET'])
+const RIPPLED_RPC = altNet ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
+const VL_SITE = altNet ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
 const SLACK_WEBHOOK_URI = process.env['WEBHOOK_URI']
 
+// Health endpoint
 app.use('/health', require('./healthcheck'))
 
+// Server
 app.listen(port, () => {
   log.info(`XRP Ledger Countdown listening at http://localhost:${port}`)
-  log.info(`RIPPLED_RPC: ${RIPPLED_RPC}, VL_SITE: ${VL_SITE}, Webhook URL present? ${(SLACK_WEBHOOK_URI != null)}`)
+  log.info(`ALTNET: ${altNet}, RIPPLED_RPC: ${RIPPLED_RPC}, VL_SITE: ${VL_SITE}, Webhook URL present? ${(SLACK_WEBHOOK_URI != null)}`)
   messageSlack('Hey, I am XRP Ledger Countdown and I have just started')
 })
 
