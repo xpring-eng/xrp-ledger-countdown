@@ -10,9 +10,8 @@ const log = log4js.getLogger()
 
 // Log Level
 log.level = process.env['LOG'] || 'info'
-
 const RIPPLED_RPC = process.env['ALTNET'] ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
-const VL_SITE = process.env['ALTNET'] ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
+const VL_SITE = envBool(process.env['ALTNET']) ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
 const SLACK_WEBHOOK_URI = process.env['WEBHOOK_URI']
 
 app.use('/health', require('./healthcheck'))
@@ -60,6 +59,14 @@ function getAmendments() {
   }).then(resp => {
     return Promise.resolve(resp.body.result.node)
   })
+}
+
+function envBool(variable) {
+  if (variable === 'true') {
+    return true
+  } else {
+    return false
+  }
 }
 
 function getAmendmentMajorities() {
