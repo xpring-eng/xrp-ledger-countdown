@@ -34,6 +34,8 @@ build/publish:
     - helm upgrade --install --namespace ${RELEASE_NAME}-${RELEASE_ENV}
         --set PORT="${PORT}"
         --set WEBHOOK_URI="${WEBHOOK_URI}"
+        --set SLACK_TOKEN="${SLACK_TOKEN}"
+        --set SLACK_CHANNEL_ID="${SLACK_CHANNEL_ID}"
         --set ALTNET="${ALTNET}"
         --set LOG="${LOG}"
         --set releaseImage="gcr.io/$GCR_PROJECT_ID/$CI_PROJECT_NAME:$IMAGE_UID"
