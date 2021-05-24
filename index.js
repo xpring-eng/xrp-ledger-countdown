@@ -1,8 +1,8 @@
 const countdown = require('countdown')
 const CronJob = require('cron').CronJob
 const request = require('request-promise')
-const Slack = require('slack-node')
 const express = require('express')
+const { RTMClient } = require('@slack/client')
 const app = express()
 const log4js = require('log4js')
 const port = process.env.PORT || 3000
@@ -15,36 +15,47 @@ log.level = process.env['LOG'] || 'info'
 const altNet = envBool(process.env['ALTNET'])
 const RIPPLED_RPC = altNet ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
 const VL_SITE = altNet ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
-const SLACK_WEBHOOK_URI = process.env['WEBHOOK_URI']
+const SLACK_CHANNEL_ID = process.env['SLACK_CHANNEL_ID']
+const SLACK_TOKEN = process.env['SLACK_TOKEN']
 
 // Health endpoint
 app.use('/health', require('./healthcheck'))
+var rtmClient = new RTMClient(SLACK_TOKEN)
+rtmClient.on('ready', () => log.info('Slack: ready'))
 
 // Server
-app.listen(port, () => {
+app.listen(port, async () => {
   log.info(`XRP Ledger Countdown listening at http://localhost:${port}`)
-  log.info(`ALTNET: ${altNet}, RIPPLED_RPC: ${RIPPLED_RPC}, VL_SITE: ${VL_SITE}, Webhook URL present? ${(SLACK_WEBHOOK_URI != null)}`)
+  log.info(`ALTNET: ${altNet}, RIPPLED_RPC: ${RIPPLED_RPC}, VL_SITE: ${VL_SITE}, Channel: ${SLACK_CHANNEL_ID}`)
+  await rtmClient.start()
   messageSlack('Hey, I am XRP Ledger Countdown and I have just started')
 })
 
-var slack = new Slack();
-slack.setWebhook(SLACK_WEBHOOK_URI)
+const messageSlack = async (message) => {
+  log.info(
+    `Message: ${message} | Channel: ${SLACK_CHANNEL_ID ?? 'undefined'}`,
+  )
+
+  if (!SLACK_CHANNEL_ID) {
+    log.error('No channel found')
+    throw new Error("No Slack Channel ID")
+  }
+
+  try {
+    await rtmClient.sendMessage(message, SLACK_CHANNEL_ID)
+  } catch (err) {
+    console.log(
+      `Failed to send message. Ensure that I am a member of channel ${SLACK_CHANNEL}. Error:`,
+      err,
+    )
+  }
+}
 
 const RIPPLE_EPOCH = 946684800
 const TWO_WEEKS = 1209600
 
 function parseRippleTime(time) {
   return new Date((time + RIPPLE_EPOCH) * 1000)
-}
-
-function messageSlack (message) {
-  log.debug(`Sending message to slack: ${message}`)
-  slack.webhook({
-    text: message
-  }, function(err, response) {
-    if (err)
-    log.error(`Error: ${err}`)
-  })
 }
 
 function getAmendments() {
