@@ -9,6 +9,8 @@ type: Opaque
 data:
   PORT: {{ .Values.PORT | toString | b64enc }}
   WEBHOOK_URI: {{ .Values.WEBHOOK_URI | toString | b64enc }}
+  SLACK_TOKEN: {{ .Values.SLACK_TOKEN | toString | b64enc }}
+  SLACK_CHANNEL_ID: {{ .Values.SLACK_CHANNEL_ID | toString | b64enc }}
   ALTNET: {{ .Values.ALTNET | toString | b64enc }}
   LOG: {{ .Values.LOG | toString | b64enc }}
 ---
