@@ -33,7 +33,7 @@ app.listen(port, async () => {
 
 const messageSlack = async (message) => {
   log.info(
-    `Message: ${message} | Channel: ${SLACK_CHANNEL_ID ?? 'undefined'}`,
+    `Message: ${message} | Channel: ${SLACK_CHANNEL_ID}`,
   )
 
   if (!SLACK_CHANNEL_ID) {
