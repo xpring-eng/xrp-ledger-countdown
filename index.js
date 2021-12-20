@@ -13,8 +13,9 @@ log.level = process.env['LOG'] || 'info'
 
 // Constants
 const altNet = envBool(process.env['ALTNET'])
-const RIPPLED_RPC = altNet ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
-const VL_SITE = altNet ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
+const devNet = envBool(process.env['DEVNET'])
+const RIPPLED_RPC = devNet ? 'https://s.devnet.rippletest.net:51234' : altNet ? 'https://s.altnet.rippletest.net:51234' : 'https://s1.ripple.com:51234'
+const VL_SITE = devNet ? 'vl.devnet.rippletest.net:51234' : altNet ? 'vl.altnet.rippletest.net' : 'vl.ripple.com'
 const SLACK_CHANNEL_ID = process.env['SLACK_CHANNEL_ID']
 const SLACK_TOKEN = process.env['SLACK_TOKEN']
 
