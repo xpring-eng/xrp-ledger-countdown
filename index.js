@@ -1,7 +1,9 @@
 const countdown = require('countdown')
 const CronJob = require('cron').CronJob
 const request = require('request-promise')
+const { createHash } = require('crypto')
 const express = require('express')
+const axios = require('axios')
 const { RTMClient } = require('@slack/client')
 const app = express()
 const log4js = require('log4js')
@@ -10,6 +12,50 @@ const log = log4js.getLogger()
 
 // Log Level
 log.level = process.env['LOG'] || 'info'
+
+async function fetchAmendmentNames() {
+  const response = await axios.get(
+    'https://raw.githubusercontent.com/ripple/rippled/develop/src/ripple/protocol/impl/Feature.cpp',
+  )
+  const text = response.data
+
+  const amendmentNames = []
+  text.split('\n').forEach((line) => {
+    const name = line.match(/^\s*REGISTER_F[A-Z]+\s*\((\S+),\s*.*$/)
+    if (name) {
+      amendmentNames.push(name[1])
+    }
+    const name2 = line.match(/^ .*retireFeature\("(\S+)"\)[,;].*$/)
+    if (name2) {
+      amendmentNames.push(name2[1])
+    }
+  })
+  return amendmentNames
+}
+
+function sha512Half(buffer) {
+  return createHash('sha512')
+    .update(buffer)
+    .digest('hex')
+    .toUpperCase()
+    .slice(0, 64)
+}
+
+const cachedAmendmentIDs = {};
+
+async function populateAmendments() {
+  const amendmentNames = await fetchAmendmentNames()
+
+  amendmentNames.forEach((name) => {
+    const hash = String(sha512Half(Buffer.from(name, 'ascii')));
+    cachedAmendmentIDs[hash] = name
+  })
+
+  console.log(`starting with the following amendments:`)
+  console.log(cachedAmendmentIDs);
+}
+
+populateAmendments()
 
 // Constants
 const altNet = envBool(process.env['ALTNET'])
@@ -95,11 +141,10 @@ function getAmendmentMajorities() {
       if (amendments.Majorities) {
         for (const majority of amendments.Majorities) {
           const hash = majority.Majority.Amendment
-          const start = resp.indexOf(hash)
           majorities.push({
             hash: hash,
             closeTime: majority.Majority.CloseTime,
-            name: start == -1 ? undefined : resp.slice(start + 65, resp.indexOf('"', start))
+            name: cachedAmendmentIDs[hash]
           })
         }
       }
