@@ -27,19 +27,30 @@ build/publish:
   when: manual
   script:
     - mkdir dependency_charts
-    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.in.xpring.tech/xpring-eng/xpring_nginx.git dependency_charts/xpring_nginx
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.in.ripplex.dev/xpring-eng/xpring_nginx.git dependency_charts/xpring_nginx
     - export IMAGE_UID="$(cat image_uid.meta.txt)"
     - kubectl create namespace ${RELEASE_NAME}-${RELEASE_ENV} || true
     - helm dep update ./charts
     - helm upgrade --install --namespace ${RELEASE_NAME}-${RELEASE_ENV}
         --set PORT="${PORT}"
-        --set WEBHOOK_URI="${WEBHOOK_URI}"
+        --set SLACK_TOKEN="${SLACK_TOKEN}"
+        --set SLACK_CHANNEL_ID="${SLACK_CHANNEL_ID}"
         --set ALTNET="${ALTNET}"
+        --set DEVNET="${DEVNET}"
         --set LOG="${LOG}"
         --set releaseImage="gcr.io/$GCR_PROJECT_ID/$CI_PROJECT_NAME:$IMAGE_UID"
         --set sslproxy.proxiedService="http://${RELEASE_NAME}-${RELEASE_ENV}"
         --set sslproxy.domainName=${DOMAIN_NAME}
         ${RELEASE_NAME}-${RELEASE_ENV} ./charts
+
+deploy to dev dev:
+  stage: deploy
+  extends: .deploy_xrpl_countdown
+  environment:
+    name: dev-dev
+  variables:
+    RELEASE_ENV: dev-dev
+    DOMAIN_NAME: dev.xrpl-countdown.xpring.dev
 
 deploy to dev test:
   stage: deploy
