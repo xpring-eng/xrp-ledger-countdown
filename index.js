@@ -133,7 +133,8 @@ function envBool(variable) {
 }
 
 function getAmendmentMajorities() {
-  return getAmendments().then(amendments => {
+  return getAmendments().then(async amendments => {
+    await populateAmendments()
     const feature_cpp =
       'https://raw.githubusercontent.com/ripple/rippled/develop/src/ripple/protocol/impl/Feature.cpp'
     return request(feature_cpp).then(resp => {
@@ -158,7 +159,7 @@ function reportAmendmentTimes() {
     const now = Date.now()
     for (const amendment of amendments) {
       const time = countdown(now, parseRippleTime(amendment.closeTime + TWO_WEEKS)).toString()
-      messageSlack('Amendment `' + (amendment.name ? amendment.name : amendment.hash) + '` will be enabled in *' + time + '* if majority holds')
+      messageSlack('Amendment `' + (amendment.name ? amendment.name : "") + '` with hash `' + amendment.hash + '` will be enabled in *' + time + '* if majority holds')
     }
   })
 }
