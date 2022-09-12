@@ -15,7 +15,7 @@ log.level = process.env['LOG'] || 'info'
 
 async function fetchAmendmentNames() {
   const response = await axios.get(
-    'https://raw.githubusercontent.com/ripple/rippled/develop/src/ripple/protocol/impl/Feature.cpp',
+    'https://raw.githubusercontent.com/XRPLF/rippled/develop/src/ripple/protocol/impl/Feature.cpp',
   )
   const text = response.data
 
